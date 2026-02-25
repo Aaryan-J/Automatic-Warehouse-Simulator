@@ -18,6 +18,15 @@ public class Pathfinding
         if (startNode == null || targetNode == null)
             return null;
 
+        //reset all costs
+        foreach (var node in grid.GetAllNodes())
+        {
+            node.gCost = 0;
+            node.hCost = 0;
+            node.parent = null;
+        }
+        startNode.gCost = 0;
+
         List<Node> openList = new List<Node>();
         HashSet<Node> closedList = new HashSet<Node>();
 

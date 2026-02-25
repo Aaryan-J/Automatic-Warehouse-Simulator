@@ -7,6 +7,7 @@ public class Grid_script
     public Dictionary<GameObject, Node> visualToNode = new Dictionary<GameObject, Node>();
     public int width, height;
     public float cellSize = 1f;
+    public TaskManager taskManager;
 
     private Transform gridParent;
 
@@ -108,24 +109,31 @@ public class Grid_script
     {
         if (node.visual != null)
         {
+            Renderer rend = node.visual.GetComponent<Renderer>();
+
             if (!node.isWalkable)
             {
-                node.visual.GetComponent<Renderer>().material.color = Color.red;
+                rend.material.color = Color.red; // obstacle
             }
             else if (node.isOccupied)
             {
-                node.visual.GetComponent<Renderer>().material.color = Color.yellow;
+                rend.material.color = Color.yellow; // robot on node
+            }
+            else if (node.isPickup)
+            {
+                rend.material.color = Color.green; // pickup
+            }
+            else if (node.isDelivery)
+            {
+                rend.material.color = Color.blue; // delivery
             }
             else
             {
+                // default checkerboard
                 if ((node.x + node.z) % 2 == 0)
-                {
-                    node.visual.GetComponent<Renderer>().material.color = new Color(0.85f, 0.85f, 0.85f);
-                }
+                    rend.material.color = new Color(0.85f, 0.85f, 0.85f);
                 else
-                {
-                    node.visual.GetComponent<Renderer>().material.color = new Color(0.8f, 0.8f, 0.8f);
-                }
+                    rend.material.color = new Color(0.8f, 0.8f, 0.8f);
             }
         }
     }

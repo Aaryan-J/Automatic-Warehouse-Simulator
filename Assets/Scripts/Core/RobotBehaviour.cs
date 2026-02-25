@@ -186,43 +186,51 @@ public class RobotBehaviour : MonoBehaviour
     {
         if (targetNode == null) return;
 
+        // Always ignore occupied for pathfinding, because we're handling collisions separately
         currentPath = pathfinding.FindPath(transform.position, targetNode.worldPosition, ignoreOccupied: true);
         pathIndex = 0;
         pathNeedsRecalc = false;
 
         if (currentPath == null || currentPath.Count == 0)
-        {
             Debug.Log($"{name}: No path found to target.");
-        }
     }
 
     private void MoveAlongPath()
     {
         if (currentPath == null || pathIndex >= currentPath.Count) return;
 
-        Node currentNode = currentPath[pathIndex];
+        Node targetNode = currentPath[pathIndex];
 
-        if (!currentNode.isWalkable || (currentNode.isOccupied && previousNode != currentNode))
+        // If node is blocked by another robot (not self), wait and recalc path later
+        if (!targetNode.isWalkable || (targetNode.assignedRobot != null && targetNode.assignedRobot != this))
         {
             pathNeedsRecalc = true;
             return;
         }
 
-        Vector3 nextTarget = currentNode.worldPosition + Vector3.up * 0.1f;
-        transform.position = Vector3.MoveTowards(transform.position, nextTarget, 2f * Time.deltaTime);
+        // Reserve the node for this robot
+        if (targetNode.assignedRobot == null)
+            targetNode.assignedRobot = this;
 
-        if (Vector3.Distance(transform.position, nextTarget) < 0.05f)
+        Vector3 moveTarget = targetNode.worldPosition + Vector3.up * 0.1f;
+        transform.position = Vector3.MoveTowards(transform.position, moveTarget, 2f * Time.deltaTime);
+
+        if (Vector3.Distance(transform.position, moveTarget) < 0.1f)
         {
-            if (previousNode != null && previousNode != currentNode)
+            // Free previous node after arriving
+            if (previousNode != null && previousNode != targetNode)
             {
+                previousNode.assignedRobot = null;
                 previousNode.isOccupied = false;
                 grid.UpdateNodeVisual(previousNode);
             }
 
-            currentNode.isOccupied = true;
-            grid.UpdateNodeVisual(currentNode);
+            // Occupy current node
+            targetNode.isOccupied = true;
+            targetNode.assignedRobot = this;
+            grid.UpdateNodeVisual(targetNode);
 
-            previousNode = currentNode;
+            previousNode = targetNode;
             pathIndex++;
         }
     }
@@ -230,7 +238,7 @@ public class RobotBehaviour : MonoBehaviour
     private bool ReachedNode(Node node)
     {
         if (node == null) return false;
-        return Vector3.Distance(transform.position, node.worldPosition + Vector3.up * 0.1f) < 0.05f;
+        return Vector3.Distance(transform.position, node.worldPosition + Vector3.up * 0.1f) < 0.1f;
     }
 
     public void SetTarget(Vector3 newTarget)

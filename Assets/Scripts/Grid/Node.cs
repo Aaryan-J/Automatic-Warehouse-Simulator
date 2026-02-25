@@ -8,6 +8,11 @@ public class Node
     public GameObject visual;
     public bool isOccupied;
 
+    public bool isPickup;
+    public bool isDelivery;
+
+    public RobotBehaviour assignedRobot = null;
+
     // A* variables
     public int gCost;
     public int hCost;

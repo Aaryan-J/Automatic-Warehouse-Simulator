@@ -302,7 +302,7 @@ Transform:
   m_GameObject: {fileID: 963194225}
   serializedVersion: 2
   m_LocalRotation: {x: 0.35355338, y: -0.35355338, z: 0.1464466, w: 0.8535535}
-  m_LocalPosition: {x: 6.5, y: 7.5, z: -8}
+  m_LocalPosition: {x: 13, y: 15, z: -16}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -317,7 +317,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1109701148}
-  - component: {fileID: 1109701147}
+  - component: {fileID: 1109701149}
   - component: {fileID: 1109701146}
   m_Layer: 0
   m_Name: SceneManager
@@ -338,22 +338,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58f5683be85832244a75ae6623134c1a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  taskSpawnInterval: 3
---- !u!114 &1109701147
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1109701145}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 707c7132cb3106141b4247177f9034e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  robotPrefab: {fileID: 4379010179332976195, guid: dfb2574131f07154f82698f9990b7f4c, type: 3}
-  debugMode: 1
-  taskManager: {fileID: 1109701146}
+  taskSpawnInterval: 5
+  randomPickupCount: 4
+  randomDeliveryCount: 4
+  minDistanceBwNodes: 10
 --- !u!4 &1109701148
 Transform:
   m_ObjectHideFlags: 0
@@ -369,6 +357,22 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1109701149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1109701145}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 707c7132cb3106141b4247177f9034e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  robotPrefab: {fileID: 4379010179332976195, guid: dfb2574131f07154f82698f9990b7f4c, type: 3}
+  debugMode: 1
+  taskManager: {fileID: 1109701146}
+  obstacleCount: 50
 --- !u!1 &1996865115
 GameObject:
   m_ObjectHideFlags: 0
