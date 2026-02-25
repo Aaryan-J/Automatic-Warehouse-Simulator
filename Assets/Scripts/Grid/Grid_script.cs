@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class Grid_script
@@ -160,5 +159,18 @@ public class Grid_script
     {
         visualToNode.TryGetValue(visual, out Node node);
         return node;
+    }
+
+    public List<Node> GetAllNodes()
+    {
+        List<Node> nodes = new List<Node>();
+        for (int i = 0; i < width; i++)
+        {
+            for (int j = 0; j < height; j++)
+            {
+                nodes.Add(gridArray[i, j]);
+            }
+        }
+        return nodes;
     }
 }
