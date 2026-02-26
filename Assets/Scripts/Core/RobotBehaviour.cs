@@ -57,7 +57,16 @@ public class RobotBehaviour : MonoBehaviour
     private Node previousNode = null;
 
     public float actionPauseTime = 5f;
+    private float recalcTimer = 0f;
+    private float recalcDelay = 0.5f;
     public Vector3 Position => transform.position;
+
+    public float moveSpeed = 2f;
+
+    private bool HasPriorityOver(RobotBehaviour other)
+    {
+        return this.GetInstanceID() < other.GetInstanceID();
+    }
 
     public void Initialize(Grid_script g, Pathfinding p, bool dbg, TaskManager tm)
     {
@@ -107,6 +116,8 @@ public class RobotBehaviour : MonoBehaviour
                 HandleActionPause(RobotState.Idle, null);
                 break;
         }
+
+        recalcTimer -= Time.deltaTime;
     }
 
     #region FSM Handlers
@@ -131,7 +142,10 @@ public class RobotBehaviour : MonoBehaviour
         if (targetNode == null) return;
 
         if (currentPath == null || pathIndex >= currentPath.Count || pathNeedsRecalc)
+        {
             RecalculatePath(targetNode);
+            recalcTimer = recalcDelay;
+        }
 
         MoveAlongPath();
 
@@ -201,23 +215,53 @@ public class RobotBehaviour : MonoBehaviour
 
         Node targetNode = currentPath[pathIndex];
 
-        // If node is blocked by another robot (not self), wait and recalc path later
-        if (!targetNode.isWalkable || (targetNode.assignedRobot != null && targetNode.assignedRobot != this))
+        RobotBehaviour other = targetNode.assignedRobot;
+
+        // Head-on swap detection
+        bool isHeadOn = false;
+        if (other != null && other != this &&
+            other.currentPath != null &&
+            other.pathIndex < other.currentPath.Count)
         {
-            pathNeedsRecalc = true;
-            return;
+            Node otherNextNode = other.currentPath[other.pathIndex];
+            if (otherNextNode == previousNode)
+                isHeadOn = true;
         }
 
-        // Reserve the node for this robot
+        // Step 1: Handle blocked or head-on nodes
+        if (!targetNode.isWalkable || (other != null && other != this))
+        {
+            // If head-on, yield based on priority
+            if (isHeadOn)
+            {
+                if (!HasPriorityOver(other))
+                    return; // lower-priority robot waits
+            }
+            else
+            {
+                // Temporarily treat occupied node as blocked
+                recalcTimer -= Time.deltaTime;
+                if (recalcTimer <= 0f)
+                {
+                    pathNeedsRecalc = true;
+                    recalcTimer = recalcDelay;
+                }
+                return;
+            }
+        }
+
+        // Step 2: Reserve the node
         if (targetNode.assignedRobot == null)
             targetNode.assignedRobot = this;
 
+        // Step 3: Move toward the target node
         Vector3 moveTarget = targetNode.worldPosition + Vector3.up * 0.1f;
-        transform.position = Vector3.MoveTowards(transform.position, moveTarget, 2f * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, moveTarget, moveSpeed * Time.deltaTime);
 
+        // Step 4: When arrived
         if (Vector3.Distance(transform.position, moveTarget) < 0.1f)
         {
-            // Free previous node after arriving
+            // Free previous node
             if (previousNode != null && previousNode != targetNode)
             {
                 previousNode.assignedRobot = null;

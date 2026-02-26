@@ -120,3 +120,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   labelPrefab: {fileID: 7586740761643888251, guid: 206b01892f0c5b24fab3da63b6a7d374, type: 3}
   actionPauseTime: 2
+  moveSpeed: 5
